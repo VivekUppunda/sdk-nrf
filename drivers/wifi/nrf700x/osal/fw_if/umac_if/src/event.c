@@ -29,6 +29,7 @@ wifi_nrf_fmac_if_carr_state_event_proc(struct wifi_nrf_fmac_dev_ctx *fmac_dev_ct
 	struct wifi_nrf_fmac_vif_ctx *vif_ctx = NULL;
 	unsigned char if_idx = 0;
 
+	wifi_nrf_osal_log_err(fmac_dev_ctx->fpriv->opriv, "%s\n", __func__);
 	if (!fmac_dev_ctx || !umac_head) {
 		wifi_nrf_osal_log_err(fmac_dev_ctx->fpriv->opriv,
 				      "%s: Invalid parameters\n",

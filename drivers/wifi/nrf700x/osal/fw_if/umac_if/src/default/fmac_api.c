@@ -2226,6 +2226,9 @@ enum wifi_nrf_status wifi_nrf_fmac_chg_vif_state(void *dev_ctx,
 			      chg_vif_state_cmd,
 			      sizeof(*chg_vif_state_cmd));
 
+	wifi_nrf_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+                                      "%d: umac_cmd_cfg returned status\n",status);
+
 	while (!vif_ctx->ifflags && (--count > 0))
 		wifi_nrf_osal_sleep_ms(fmac_dev_ctx->fpriv->opriv, 1);
 

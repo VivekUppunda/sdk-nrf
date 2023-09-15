@@ -140,7 +140,7 @@ enum nrf_wifi_umac_commands {
 	/** Set listen interval @ref nrf_wifi_umac_cmd_set_listen_interval */
 	NRF_WIFI_UMAC_CMD_SET_LISTEN_INTERVAL,
 	/** Configure extended power save @ref nrf_wifi_umac_cmd_config_extended_ps */
-	NRF_WIFI_UMAC_CMD_CONFIG_EXTENDED_PS
+	NRF_WIFI_UMAC_CMD_CONFIG_EXTENDED_PS,
 };
 
  /**
@@ -3454,5 +3454,46 @@ struct nrf_wifi_umac_event_cmd_status {
 	/** Status codes */
 	unsigned int cmd_status;
 } __NRF_WIFI_PKD;
-
+/**
+ * @brief This structure represents the command filter settings 
+ *  for promiscuous and monitor mode operation.
+ *
+ */
+struct nrf_wifi_cmd_raw_config_filter {
+	/** UMAC header, @ref nrf_wifi_sys_head */
+	struct nrf_wifi_sys_head sys_head;
+	/** Interface index  */
+	unsigned char if_index;
+	/** Wireless device operating mode filters for Promiscuous/Monitor modes */
+	unsigned char filter;
+	/** Capture length */
+	unsigned int capture_len;
+} __NRF_WIFI_PKD;
+/**
+ * @brief This structure represents the command to set mode for
+ *  different modes of operation
+ *
+ */
+struct nrf_wifi_cmd_raw_config_mode {
+	/** UMAC header, @ref nrf_wifi_sys_head */
+	struct nrf_wifi_sys_head sys_head;
+	/** Interface index */
+	unsigned char if_index;
+	/** Wireless device operating mode(Promiscuous/Monitor/Packet injector) */
+	unsigned char op_mode;
+} __NRF_WIFI_PKD;
+/**
+ * @brief This structure represents the command to set the channel for
+ *  monitor and TX-Injection mode operation when the aforesaid modes are
+ *  functioning independently
+ *
+ */
+struct nrf_wifi_cmd_set_channel {
+	/** UMAC header, @ref nrf_wifi_sys_head */
+	struct nrf_wifi_sys_head sys_head;
+	/** Interface index */
+	unsigned char if_index;
+	/** channel parameters, @ref chan_params */
+	struct chan_params chan;
+} __NRF_WIFI_PKD;
 #endif /* __HOST_RPU_UMAC_IF_H */

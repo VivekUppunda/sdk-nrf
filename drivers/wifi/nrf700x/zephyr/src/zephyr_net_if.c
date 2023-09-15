@@ -54,6 +54,7 @@ static void wifi_nrf_net_iface_work_handler(struct k_work *work)
 		return;
 	}
 
+	LOG_ERR("%s: checking for WIFI_NRF_FMAC_IF_CARR_STATE_ON\n", __func__);
 	if (vif_ctx_zep->if_carr_state == WIFI_NRF_FMAC_IF_CARR_STATE_ON) {
 		net_if_dormant_off(vif_ctx_zep->zep_net_if_ctx);
 	} else if (vif_ctx_zep->if_carr_state == WIFI_NRF_FMAC_IF_CARR_STATE_OFF) {
@@ -94,7 +95,9 @@ enum wifi_nrf_status wifi_nrf_if_carr_state_chg(void *os_vif_ctx,
 {
 	enum wifi_nrf_status status = WIFI_NRF_STATUS_FAIL;
 	struct wifi_nrf_vif_ctx_zep *vif_ctx_zep = NULL;
-
+	
+	LOG_ERR("%s: Carrier state: %d\n", __func__, carr_state);
+	
 	if (!os_vif_ctx) {
 		LOG_ERR("%s: Invalid parameters\n",
 			__func__);
@@ -273,6 +276,8 @@ void wifi_nrf_if_init_zep(struct net_if *iface)
 	bool fmac_dev_added = false;
 	struct ethernet_context *eth_ctx = net_if_l2_data(iface);
 
+	LOG_ERR("%s: entered\n", __func__);
+
 	if (!iface) {
 		LOG_ERR("%s: Invalid parameters\n",
 			__func__);
@@ -314,6 +319,7 @@ void wifi_nrf_if_init_zep(struct net_if *iface)
 
 	/* This is needed to populate MAC address from OTP */
 	if (wifi_nrf_fmac_get_num_vifs(&rpu_drv_priv_zep.fmac_priv) == 0) {
+		LOG_ERR("%s: invoking wifi_nrf_fmac_dev_add_zep\n", __func__);
 		status = wifi_nrf_fmac_dev_add_zep(&rpu_drv_priv_zep);
 
 		if (status != WIFI_NRF_STATUS_SUCCESS) {
@@ -423,6 +429,8 @@ int wifi_nrf_if_start_zep(const struct device *dev)
 	int ret = -1;
 	bool fmac_dev_added = false;
 
+	LOG_ERR("%s:\n",__func__);
+	
 	if (!dev) {
 		LOG_ERR("%s: Invalid parameters\n",
 			__func__);
@@ -451,7 +459,11 @@ int wifi_nrf_if_start_zep(const struct device *dev)
 		goto out;
 	}
 
+	LOG_ERR("%s:before check for rpu_ctx_zep->rpu_ctx\n",__func__);
+
 	if (!rpu_ctx_zep->rpu_ctx) {
+
+		LOG_ERR("%s:before wifi_nrf_fmac_dev_add_zep\n",__func__);
 		status = wifi_nrf_fmac_dev_add_zep(&rpu_drv_priv_zep);
 
 		if (status != WIFI_NRF_STATUS_SUCCESS) {
@@ -476,12 +488,15 @@ int wifi_nrf_if_start_zep(const struct device *dev)
 	       dev->name,
 	       strlen(dev->name));
 
+	LOG_ERR("%s:before wifi_nrf_fmac_add_vif\n",__func__);
 	vif_ctx_zep->vif_idx = wifi_nrf_fmac_add_vif(fmac_dev_ctx,
 						     vif_ctx_zep,
 						     &add_vif_info);
 
 	rpu_ctx_zep->vif_ctx_zep[vif_ctx_zep->vif_idx].if_type =
 		add_vif_info.iftype;
+
+	LOG_ERR("%s:checking for vif index\n",__func__);
 
 	if (vif_ctx_zep->vif_idx >= MAX_NUM_VIFS) {
 		LOG_ERR("%s: FMAC returned invalid interface index\n",
@@ -523,6 +538,7 @@ int wifi_nrf_if_start_zep(const struct device *dev)
 	       dev->name,
 	       strlen(dev->name));
 
+	LOG_ERR("%s:before wifi_nrf_fmac_chg_vif_state\n",__func__);
 	status = wifi_nrf_fmac_chg_vif_state(rpu_ctx_zep->rpu_ctx,
 					     vif_ctx_zep->vif_idx,
 					     &vif_info);
@@ -533,6 +549,7 @@ int wifi_nrf_if_start_zep(const struct device *dev)
 		goto dev_rem;
 	}
 
+	LOG_ERR("%s:after wifi_nrf_fmac_chg_vif_state\n",__func__);
 #ifdef CONFIG_NRF700X_STA_MODE
 	wifi_nrf_wpa_supp_event_mac_chgd(vif_ctx_zep);
 
@@ -546,6 +563,7 @@ int wifi_nrf_if_start_zep(const struct device *dev)
 			__func__);
 		goto dev_rem;
 	}
+	LOG_ERR("%s:after wifi_nrf_fmac_set_power_save\n",__func__);
 #endif /* CONFIG_NRF_WIFI_LOW_POWER */
 #endif /* CONFIG_NRF700X_STA_MODE */
 

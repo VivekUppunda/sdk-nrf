@@ -47,6 +47,15 @@ int wifi_nrf_twt_teardown_flows(struct wifi_nrf_vif_ctx_zep *vif_ctx_zep,
 int wifi_nrf_get_power_save_config(const struct device *dev,
 		struct wifi_ps_config *ps_config);
 
+int wifi_nrf_mode(const struct device *dev,
+		struct wifi_mode_info *mode);
+
+int wifi_nrf_filter(const struct device *dev,
+		struct wifi_filter_info *filter);
+
+int wifi_nrf_channel(const struct device *dev,
+		struct wifi_channel_info *channel);
+
 void wifi_nrf_event_proc_get_power_save_info(void *vif_ctx,
 		struct nrf_wifi_umac_event_power_save_info *ps_info,
 		unsigned int event_len);

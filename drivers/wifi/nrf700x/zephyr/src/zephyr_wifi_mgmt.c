@@ -188,6 +188,206 @@ out:
 	return ret;
 }
 
+enum wifi_nrf_status check_mode_validity(struct wifi_mode_info *mode) {
+	/* We validate the currently supported driver and lower layer 
+	 * modes only
+	 */
+	if ((mode->mode ^ WIFI_STA_MODE) == 0) {
+		return WIFI_NRF_STATUS_SUCCESS;
+	} else if ((mode->mode ^ WIFI_MONITOR_MODE) == 0) {
+		return WIFI_NRF_STATUS_SUCCESS;
+	} else if ((mode->mode ^ WIFI_TX_INJECTION_MODE) == 0) {
+		return WIFI_NRF_STATUS_SUCCESS;
+	} else if ((mode->mode ^ (WIFI_MONITOR_MODE |
+				  WIFI_TX_INJECTION_MODE)) == 0) {
+		return WIFI_NRF_STATUS_SUCCESS;
+	} else if ((mode->mode ^ (WIFI_STA_MODE |
+				  WIFI_TX_INJECTION_MODE)) == 0) {
+		return WIFI_NRF_STATUS_SUCCESS;
+	} else if ((mode->mode ^ (WIFI_STA_MODE | 
+				  WIFI_PROMISCUOUS_MODE)) == 0) {
+		return WIFI_NRF_STATUS_SUCCESS;
+	} else if ((mode->mode ^ (WIFI_STA_MODE |
+				  WIFI_TX_INJECTION_MODE |
+				  WIFI_PROMISCUOUS_MODE)) == 0) {
+		return WIFI_NRF_STATUS_SUCCESS;
+	}	
+	return WIFI_NRF_STATUS_FAIL;
+}
+
+int wifi_nrf_mode(const struct device *dev,
+			struct wifi_mode_info *mode)
+{
+	enum wifi_nrf_status status = WIFI_NRF_STATUS_FAIL;
+	struct wifi_nrf_ctx_zep *rpu_ctx_zep = NULL;
+	struct wifi_nrf_vif_ctx_zep *vif_ctx_zep = NULL;
+	struct wifi_nrf_fmac_dev_ctx *fmac_dev_ctx = NULL;
+	int ret = -1;
+	int count = 0;
+
+	if (!dev || !mode) {
+		goto out;
+	}
+
+	status = check_mode_validity(mode);
+
+	if (status != WIFI_NRF_STATUS_SUCCESS) {
+		goto out;
+	}
+
+	vif_ctx_zep = dev->data;
+
+	if (!vif_ctx_zep) {
+		LOG_ERR("%s: vif_ctx_zep is NULL\n", __func__);
+		goto out;
+	}
+
+	if (mode->if_index >= MAX_NUM_VIFS) {
+		LOG_ERR("%s: interface index provided is not valid\n", __func__);
+		goto out;
+	}
+
+	rpu_ctx_zep = vif_ctx_zep->rpu_ctx_zep;
+	fmac_dev_ctx = rpu_ctx_zep->rpu_ctx;
+
+	LOG_ERR("driver: mode->mode = %x\n", mode->mode);
+	LOG_ERR("driver: mode->if_index = %d\n", mode->if_index);
+
+	if (!device_is_ready(dev)) {
+		LOG_ERR("%s: Device %s is not ready\n",
+			__func__, dev->name);
+		goto out;
+	}
+
+	if (mode->oper == WIFI_MGMT_SET) {
+#if 0
+		status = wifi_nrf_fmac_mode(rpu_ctx_zep->rpu_ctx, mode->if_index, mode->mode);
+
+		if (status != WIFI_NRF_STATUS_SUCCESS) {
+			LOG_ERR("%s: filter operation failed\n",__func__);
+			goto out;
+		}
+#endif
+	} else {
+		mode->mode = vif_ctx_zep->mode;
+	}
+	ret = 0;
+out:
+	return ret;
+}
+
+int wifi_nrf_filter(const struct device *dev,
+		    struct wifi_filter_info *filter)
+{
+	enum wifi_nrf_status status = WIFI_NRF_STATUS_FAIL;
+	struct wifi_nrf_ctx_zep *rpu_ctx_zep = NULL;
+	struct wifi_nrf_vif_ctx_zep *vif_ctx_zep = NULL;
+	struct wifi_nrf_fmac_dev_ctx *fmac_dev_ctx = NULL;
+	int ret = -1;
+	int count = 0;
+
+	if (!dev || !filter) {
+		goto out;
+	}
+
+	vif_ctx_zep = dev->data;
+
+	if (!vif_ctx_zep) {
+		LOG_ERR("%s: vif_ctx_zep is NULL\n", __func__);
+		goto out;
+	}
+	
+	if (filter->if_index >= MAX_NUM_VIFS) {
+		LOG_ERR("%s: interface index provided is not valid\n", __func__);
+		goto out;
+	}
+
+	rpu_ctx_zep = vif_ctx_zep->rpu_ctx_zep;
+	fmac_dev_ctx = rpu_ctx_zep->rpu_ctx;
+
+	if (filter->oper == WIFI_MGMT_SET) {
+		/* 
+		 * In case a user sets data + management + ctrl bits
+		 * or all the filter bits. Map it to bit 0 set to 
+		 * enable "all" packet filter bit setting
+	 	 */
+
+		if (filter->filter == 0xE || filter->filter == 0xF) {
+			filter->filter = 1;
+		}
+
+		vif_ctx_zep->packet_filter = filter->filter;
+		LOG_ERR("driver: filter->filter = %x\n", filter->filter);
+		LOG_ERR("driver: filter->if_index = %d\n", filter->if_index);
+		LOG_ERR("driver: filter->buffer_size = %d\n", filter->buffer_size);
+#if 0
+		status = wifi_nrf_fmac_packet_filter(rpu_ctx_zep->rpu_ctx, filter->filter,
+						filter->if_index, filter->buffer_size);
+	
+		if (status != WIFI_NRF_STATUS_SUCCESS) {
+			LOG_ERR("%s: filter operation failed\n",__func__);
+			goto out;
+		}
+#endif
+	} else {
+		filter->filter = vif_ctx_zep->packet_filter;
+	}	
+	ret = 0;
+out:
+	return ret;
+
+}
+
+int wifi_nrf_channel(const struct device *dev,
+			struct wifi_channel_info *channel)
+{
+	enum wifi_nrf_status status = WIFI_NRF_STATUS_FAIL;
+	struct wifi_nrf_ctx_zep *rpu_ctx_zep = NULL;
+	struct wifi_nrf_vif_ctx_zep *vif_ctx_zep = NULL;
+	struct wifi_nrf_fmac_dev_ctx *fmac_dev_ctx = NULL;
+	int ret = -1;
+	int count = 0;
+
+	if (!dev || !channel) {
+		goto out;
+	}
+
+	vif_ctx_zep = dev->data;
+
+	if (!vif_ctx_zep) {
+		LOG_ERR("%s: vif_ctx_zep is NULL\n", __func__);
+		goto out;
+	}
+
+	if (channel->if_index >= MAX_NUM_VIFS) {
+		LOG_ERR("%s: interface index provided is not valid\n", __func__);
+		goto out;
+	}
+
+	LOG_ERR("driver: channel->if_index = %d\n", channel->if_index);
+	LOG_ERR("driver: channel->channel = %d\n", channel->channel);
+
+	rpu_ctx_zep = vif_ctx_zep->rpu_ctx_zep;
+
+	if (channel->oper == WIFI_MGMT_SET) {
+#if 0
+	status = wifi_nrf_fmac_channel(rpu_ctx_zep->rpu_ctx, channel->channel,
+			channel->if_index);
+
+	if (status != WIFI_NRF_STATUS_SUCCESS) {
+		LOG_ERR("%s: wifi_nrf_fmac_get_power_save_info failed\n",__func__);
+		goto out;
+	}
+#endif
+	} else {
+		channel->channel = vif_ctx_zep->channel;
+	}
+
+	ret = 0;
+out:	
+	return ret;
+}
+
 /* TWT interval conversion helpers: User <-> Protocol */
 static struct twt_interval_float wifi_nrf_twt_us_to_float(uint32_t twt_interval)
 {

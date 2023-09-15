@@ -118,6 +118,8 @@ enum wifi_nrf_status umac_cmd_init(struct wifi_nrf_fmac_dev_ctx *fmac_dev_ctx,
 
 	umac_cmd_data = (struct nrf_wifi_cmd_sys_init *)(umac_cmd->msg);
 
+	wifi_nrf_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				"%s: calling umac_cmd_init - NRF_WIFI_CMD_INIT\n", __func__);
 	umac_cmd_data->sys_head.cmd_event = NRF_WIFI_CMD_INIT;
 	umac_cmd_data->sys_head.len = len;
 

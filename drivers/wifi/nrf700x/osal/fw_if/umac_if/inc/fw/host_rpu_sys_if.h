@@ -153,6 +153,12 @@ enum nrf_wifi_sys_commands {
 	NRF_WIFI_CMD_RT_REQ_SET_REG,
 	/** Command to enable/disable fixed data rate in regular mode */
 	NRF_WIFI_CMD_TX_FIX_DATA_RATE,
+	/** Set or get channel for Monitor, TX-Injection mode operation */
+	NRF_WIFI_CMD_CHANNEL,
+	/** Set or get mode or filter settings from RPU firmware */
+	NRF_WIFI_CMD_RAW_CONFIG_MODE,
+	/** Set or get filter settings for monitor and promiscuous mode */
+	NRF_WIFI_CMD_RAW_CONFIG_FILTER,
 };
 
 /**
@@ -1332,5 +1338,4 @@ struct nrf_wifi_event_deinit_done {
 	/** UMAC header, @ref nrf_wifi_sys_head */
 	struct nrf_wifi_sys_head sys_head;
 } __NRF_WIFI_PKD;
-
 #endif /* __HOST_RPU_SYS_IF_H__ */

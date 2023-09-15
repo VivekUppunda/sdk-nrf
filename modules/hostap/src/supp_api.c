@@ -545,3 +545,44 @@ int z_wpa_supplicant_reg_domain(const struct device *dev,
 
 	return wifi_mgmt_api->reg_domain(dev, reg_domain);
 }
+
+int z_wpa_supplicant_mode(const struct device *dev,
+				struct wifi_mode_info *mode)
+{
+	const struct wifi_mgmt_ops *const wifi_mgmt_api = get_wifi_mgmt_api(dev);
+
+	if (!wifi_mgmt_api || !wifi_mgmt_api->mode) {
+		wpa_printf(MSG_ERROR, "Setting mode not supported");
+		return -ENOTSUP;
+	}
+
+	wpa_printf(MSG_ERROR, "wpa supplicant mode setting being invoked");
+	return wifi_mgmt_api->mode(dev, mode);
+}
+
+int z_wpa_supplicant_filter(const struct device *dev,
+				struct wifi_filter_info *filter)
+{
+	const struct wifi_mgmt_ops *const wifi_mgmt_api = get_wifi_mgmt_api(dev);
+
+	if (!wifi_mgmt_api || !wifi_mgmt_api->filter) {
+		wpa_printf(MSG_ERROR, "Setting filter not supported");
+		return -ENOTSUP;
+	}
+
+	return wifi_mgmt_api->filter(dev, filter);
+}
+
+int z_wpa_supplicant_channel(const struct device *dev,
+				struct wifi_channel_info *channel)
+{
+	const struct wifi_mgmt_ops *const wifi_mgmt_api = get_wifi_mgmt_api(dev);
+
+	if (!wifi_mgmt_api || !wifi_mgmt_api->channel) {
+		wpa_printf(MSG_ERROR, "Setting channel not supported");
+		return -ENOTSUP;
+	}
+
+	return wifi_mgmt_api->channel(dev, channel);
+}
+

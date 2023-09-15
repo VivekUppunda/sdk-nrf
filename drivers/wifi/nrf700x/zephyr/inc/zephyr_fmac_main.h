@@ -82,6 +82,9 @@ struct wifi_nrf_vif_ctx_zep {
 	unsigned long rssi_record_timestamp_us;
 	signed short rssi;
 #endif /* CONFIG_NRF700X_STA_MODE */
+	unsigned char packet_filter;
+	unsigned char mode;
+	unsigned char channel;
 };
 
 struct wifi_nrf_vif_ctx_map {

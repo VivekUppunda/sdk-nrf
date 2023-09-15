@@ -395,7 +395,8 @@ enum wifi_nrf_status wifi_nrf_fmac_dev_add_zep(struct wifi_nrf_drv_priv_zep *drv
 	rpu_ctx_zep = &drv_priv_zep->rpu_ctx_zep;
 
 	rpu_ctx_zep->drv_priv_zep = drv_priv_zep;
-
+	
+	LOG_ERR("%s: invoking wifi_nrf_fmac_dev_add\n", __func__);
 	rpu_ctx = wifi_nrf_fmac_dev_add(drv_priv_zep->fmac_priv, rpu_ctx_zep);
 
 	if (!rpu_ctx) {
@@ -420,7 +421,7 @@ enum wifi_nrf_status wifi_nrf_fmac_dev_add_zep(struct wifi_nrf_drv_priv_zep *drv
 		goto out;
 	}
 
-	LOG_DBG("Firmware (v%d.%d.%d.%d) booted successfully\n",
+	LOG_ERR("Firmware (v%d.%d.%d.%d) booted successfully\n",
 		NRF_WIFI_UMAC_VER(fw_ver),
 		NRF_WIFI_UMAC_VER_MAJ(fw_ver),
 		NRF_WIFI_UMAC_VER_MIN(fw_ver),
@@ -452,6 +453,7 @@ enum wifi_nrf_status wifi_nrf_fmac_dev_add_zep(struct wifi_nrf_drv_priv_zep *drv
 					op_band,
 					&tx_pwr_ctrl_params);
 #else
+	LOG_ERR("%s: invoking wifi_nrf_fmac_dev_init\n", __func__);
 	status = wifi_nrf_fmac_dev_init(rpu_ctx_zep->rpu_ctx,
 					NULL,
 #ifdef CONFIG_NRF_WIFI_LOW_POWER
@@ -608,6 +610,9 @@ static struct wifi_mgmt_ops wifi_nrf_mgmt_ops = {
 	.reg_domain = wifi_nrf_reg_domain,
 	.get_power_save_config = wifi_nrf_get_power_save_config,
 #endif /* CONFIG_NRF700X_STA_MODE */
+	.mode = wifi_nrf_mode,
+	.filter = wifi_nrf_filter,
+	.channel = wifi_nrf_channel,
 };
 
 
