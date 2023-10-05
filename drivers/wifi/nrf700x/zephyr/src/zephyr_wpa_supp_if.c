@@ -266,6 +266,9 @@ void nrf_wifi_wpa_supp_event_proc_auth_resp(void *if_priv,
 	frame_len = auth_resp->frame.frame_len;
 	mgmt = (const struct ieee80211_mgmt *)frame;
 
+
+	LOG_ERR("%s: auth response frame\n", __func__);
+
 	if (frame_len < 4 + (2 * NRF_WIFI_ETH_ADDR_LEN)) {
 		LOG_ERR("%s: MLME event too short\n", __func__);
 		return;
@@ -764,6 +767,7 @@ int nrf_wifi_wpa_supp_authenticate(void *if_priv, struct wpa_driver_auth_params 
 		LOG_DBG("%s:Authentication request sent successfully\n", __func__);
 		ret = 0;
 	}
+		LOG_ERR("%s:Authentication request sent successfully\n", __func__);
 out:
 	return ret;
 }
@@ -833,6 +837,7 @@ int nrf_wifi_wpa_supp_associate(void *if_priv, struct wpa_driver_associate_param
 		ret = 0;
 	}
 
+		LOG_ERR("%s: Association request sent successfully\n", __func__);
 out:
 	return ret;
 }
@@ -1000,6 +1005,7 @@ int nrf_wifi_wpa_set_supp_port(void *if_priv, int authorized, char *bssid)
 		return -1;
 	}
 
+	LOG_ERR("%s: nrf_wifi_wpa_set_supp_port success\n", __func__);
 	return 0;
 }
 
@@ -1283,6 +1289,7 @@ int nrf_wifi_nl80211_send_mlme(void *if_priv, const u8 *data,
 		goto out;
 	}
 
+		LOG_ERR("%s: nrf_wifi_fmac_mgmt_tx performed\n", __func__);
 	/* Both are needed as we use this to send_action where noack is hardcoded
 	 * to 0 always.
 	 */
@@ -1667,6 +1674,7 @@ int nrf_wifi_supp_get_conn_info(void *if_priv, struct wpa_conn_info *info)
 		goto out;
 	}
 
+		LOG_ERR("%s: nrf_wifi_supp_get_conn_info ret = %d\n", __func__, sem_ret);
 out:
 	return ret;
 }

@@ -239,7 +239,7 @@ enum nrf_wifi_umac_events {
 	/** @ref nrf_wifi_umac_event_power_save_info */
 	NRF_WIFI_UMAC_EVENT_GET_POWER_SAVE_INFO
 };
-
+#define	IMG_UMAC_EVENT_MCAST_FILTER 298
 /**
  * @brief Represents the values that can be used to specify the frequency band.
  *
@@ -252,8 +252,8 @@ enum nrf_wifi_band {
 	NRF_WIFI_BAND_5GHZ,
 	/** Unused */
 	NRF_WIFI_BAND_60GHZ,
-	/** Invalid */
-	NRF_WIFI_BAND_INVALID
+        /** Invalid */
+        NRF_WIFI_BAND_INVALID	
 };
 
 /**
@@ -394,6 +394,12 @@ enum nrf_wifi_iftype {
 	NRF_WIFI_IFTYPE_P2P_DEVICE,
 	/** Not Supported */
 	NRF_WIFI_IFTYPE_OCB,
+	/** Tx Packtet injector mode */
+	NRF_WIFI_TX_INJECTOR,
+	/** Station + Tx Packet injector mode */
+	NRF_WIFI_STA_TX_INJECTOR,
+	/** Monitor + Tx Packet injector mode */
+	NRF_WIFI_MONITOR_TX_INJECTOR,
 	/** Highest interface type number currently defined */
 	NUM_NRF_WIFI_IFTYPES,
 	/** Number of defined interface types */
@@ -648,9 +654,9 @@ struct nrf_wifi_channel {
 } __NRF_WIFI_PKD;
 
 
-
 #define NRF_WIFI_SCAN_MAX_NUM_SSIDS 2
 #define NRF_WIFI_SCAN_MAX_NUM_FREQUENCIES 64
+#define MAX_NUM_CHANNELS 42
 
 #define NRF_WIFI_SCAN_BAND_2GHZ	(1 << 0)
 #define NRF_WIFI_SCAN_BAND_5GHZ	(1 << 1)
@@ -1092,6 +1098,24 @@ struct nrf_wifi_umac_key_info {
 	unsigned char key_idx;
 } __NRF_WIFI_PKD;
 
+#define NRF_WIFI_CMD_GET_KEY_MAC_ADDR_VALID (1 << 0)
+#define NRF_WIFI_CMD_GET_KEY_KEY_IDX_VALID (1 << 1)
+
+struct nrf_wifi_umac_cmd_get_key {
+	struct nrf_wifi_umac_hdr umac_hdr;
+	unsigned int valid_fields;
+	unsigned char mac_addr[NRF_WIFI_ETH_ADDR_LEN];
+	unsigned char key_idx;
+} __NRF_WIFI_PKD;
+
+#define NRF_WIFI_EVENT_GET_KEY_MAC_ADDR_VALID (1 << 0)
+
+struct nrf_wifi_umac_event_get_key {
+	struct nrf_wifi_umac_hdr umac_hdr;
+	unsigned int valid_fields;
+	struct nrf_wifi_umac_key_info key_info;
+	unsigned char mac_addr[NRF_WIFI_ETH_ADDR_LEN];
+} __NRF_WIFI_PKD;
 
 
 /**
@@ -1783,7 +1807,7 @@ struct nrf_wifi_supported_channels {
 
 } __NRF_WIFI_PKD;
 
-#define NRF_WIFI_OPER_CLASSES_MAX_LEN 64
+#define NRF_WIFI_SUPPORTED_OPER_CLASSES_MAX_LEN 64
 
 /**
  * @brief Operating classes information.
@@ -1792,7 +1816,7 @@ struct nrf_wifi_supported_oper_classes {
 	/** length */
 	unsigned int supported_oper_classes_len;
 	/** oper_class info*/
-	unsigned char supported_oper_classes[NRF_WIFI_OPER_CLASSES_MAX_LEN];
+	unsigned char supported_oper_classes[NRF_WIFI_SUPPORTED_OPER_CLASSES_MAX_LEN];
 
 } __NRF_WIFI_PKD;
 
@@ -2326,7 +2350,6 @@ enum nrf_wifi_twt_setup_cmd_type {
 
 #define NRF_WIFI_TWT_RESP_RECEIVED 0
 #define NRF_WIFI_TWT_RESP_NOT_RECEIVED 1
-#define NRF_WIFI_INVALID_TWT_WAKE_INTERVAL 3
 
 /**
  * @brief This structure describes the TWT information.
@@ -2381,6 +2404,7 @@ struct nrf_wifi_umac_cmd_config_twt {
 
 #define INVALID_TIME 1
 #define TRIGGER_NOT_RECEIVED 2
+#define NRF_WIFI_INVALID_TWT_WAKE_INTERVAL 3
 
 /**
  * @brief This structure represents the TWT delete information.
@@ -3394,21 +3418,20 @@ struct nrf_wifi_reg_rules {
 } __NRF_WIFI_PKD;
 
 /**
- * @brief This structure represents channels information like maximum power,
- *  center frequency, channel supported and active or passive scan.
+ * @brief This structure represents channels information like maximum power, center frequency etc..
  *
  */
 struct nrf_wifi_get_reg_chn_info {
 	/** center frequency in MHz */
-	unsigned int center_frequency;
+    unsigned int center_frequency;
 	/** maximum transmission power (in dBm) */
-	unsigned int max_power;
+    unsigned int max_power;
 	/** Particular channel is supported or not */
-	char supported;
+    char supported;
 	/** Particular channel is supports passive scanning or not */
-	char passive_channel;
+    char passive_channel;
 	/** Particular channel is dfs or not */
-	char dfs;
+        char dfs;
 } __NRF_WIFI_PKD;
 
 #define NRF_WIFI_CMD_SET_REG_ALPHA2_VALID (1 << 0)
@@ -3453,6 +3476,23 @@ struct nrf_wifi_cmd_req_set_reg {
 	unsigned char nrf_wifi_alpha2[NRF_WIFI_COUNTRY_CODE_LEN];
 } __NRF_WIFI_PKD;
 
+struct nrf_wifi_event_send_beacon_hint {
+	struct nrf_wifi_umac_hdr umac_hdr;
+	struct nrf_wifi_event_channel channel_before;
+	struct nrf_wifi_event_channel channel_after;
+
+} __NRF_WIFI_PKD;
+
+#define NRF_WIFI_EVNT_WIPHY_SELF_MANAGED (1 << 0)
+
+struct nrf_wifi_event_regulatory_change {
+	struct nrf_wifi_umac_hdr umac_hdr;
+	unsigned short nrf_wifi_flags;
+	signed int intr;
+	signed char regulatory_type;
+	unsigned char nrf_wifi_alpha2[NRF_WIFI_COUNTRY_CODE_LEN];
+
+} __NRF_WIFI_PKD;
 /**
  * @brief This structure represents the status code for a command. It is used to indicate
  *  the outcome or result of executing a specific command. The status code provides valuable

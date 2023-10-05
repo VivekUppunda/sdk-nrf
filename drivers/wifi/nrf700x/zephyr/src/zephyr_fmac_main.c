@@ -528,7 +528,7 @@ enum nrf_wifi_status nrf_wifi_fmac_dev_add_zep(struct nrf_wifi_drv_priv_zep *drv
 		goto out;
 	}
 
-	LOG_DBG("Firmware (v%d.%d.%d.%d) booted successfully\n",
+	LOG_ERR("Firmware (v%d.%d.%d.%d) booted successfully\n",
 		NRF_WIFI_UMAC_VER(fw_ver),
 		NRF_WIFI_UMAC_VER_MAJ(fw_ver),
 		NRF_WIFI_UMAC_VER_MIN(fw_ver),
@@ -707,6 +707,11 @@ static struct wifi_mgmt_ops nrf_wifi_mgmt_ops = {
 	.reg_domain = nrf_wifi_reg_domain,
 	.get_power_save_config = nrf_wifi_get_power_save_config,
 #endif /* CONFIG_NRF700X_STA_MODE */
+#ifdef CONFIG_NRF700X_RAWDATA_TX
+	.mode = nrf_wifi_mode,
+	.filter = nrf_wifi_filter,
+	.channel = nrf_wifi_channel,
+#endif
 };
 
 

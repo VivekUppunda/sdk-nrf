@@ -222,7 +222,7 @@ unsigned long nrf_wifi_hal_buf_map_tx(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx,
 
 	rpu_addr = RPU_MEM_PKT_BASE + (bounce_buf_addr - hal_dev_ctx->addr_rpu_pktram_base);
 
-	nrf_wifi_osal_log_dbg(hal_dev_ctx->hpriv->opriv,
+	nrf_wifi_osal_log_err(hal_dev_ctx->hpriv->opriv,
 	       "%s: bounce_buf_addr: 0x%lx, rpu_addr: 0x%lx, buf_len: %d off:%d\n",
 	       __func__,
 	       bounce_buf_addr,
@@ -274,6 +274,10 @@ unsigned long nrf_wifi_hal_buf_unmap_tx(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx
 				      __func__);
 		goto out;
 	}
+
+	nrf_wifi_osal_log_err(hal_dev_ctx->hpriv->opriv,
+			      "%s: tx_buf_info->phy_addr is 0x%x, tx_buf_info->buf_len is %d\n",
+			      __func__, tx_buf_info->phy_addr, tx_buf_info->buf_len);
 
 	unmapped_addr = nrf_wifi_bal_dma_unmap(hal_dev_ctx->bal_dev_ctx,
 					       tx_buf_info->phy_addr,
@@ -678,6 +682,7 @@ static enum nrf_wifi_status hal_rpu_msg_get_addr(struct nrf_wifi_hal_dev_ctx *ha
 		*msg_addr = 0;
 		goto out;
 	}
+
 out:
 	return status;
 }
@@ -694,6 +699,7 @@ static enum nrf_wifi_status hal_rpu_msg_write(struct nrf_wifi_hal_dev_ctx *hal_d
 	/* Get the address from the RPU to which
 	 * the command needs to be copied to
 	 */
+
 	status = hal_rpu_msg_get_addr(hal_dev_ctx,
 				      msg_type,
 				      &msg_addr);
@@ -718,8 +724,7 @@ static enum nrf_wifi_status hal_rpu_msg_write(struct nrf_wifi_hal_dev_ctx *hal_d
 				      __func__);
 		goto out;
 	}
-
-	/* Post the updated information to the RPU */
+		/* Post the updated information to the RPU */
 	status = hal_rpu_msg_post(hal_dev_ctx,
 				  msg_type,
 				  0,
@@ -757,11 +762,12 @@ static enum nrf_wifi_status hal_rpu_cmd_process_queue(struct nrf_wifi_hal_dev_ct
 			continue;
 		}
 
+#if 1 	
 		status = hal_rpu_msg_write(hal_dev_ctx,
 					   NRF_WIFI_HAL_MSG_TYPE_CMD_CTRL,
 					   cmd->data,
 					   cmd->len);
-
+#endif
 		if (status != NRF_WIFI_STATUS_SUCCESS) {
 			nrf_wifi_osal_log_err(hal_dev_ctx->hpriv->opriv,
 					      "%s: Writing command to RPU failed\n",

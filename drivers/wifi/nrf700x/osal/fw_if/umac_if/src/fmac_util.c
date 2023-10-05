@@ -356,6 +356,16 @@ bool nrf_wifi_util_is_arr_zero(unsigned char *arr,
 	return true;
 }
 
+#ifdef CONFIG_NRF700X_RAWDATA_TX
+bool nrf_wifi_util_is_rawpktmode_enabled(struct nrf_wifi_fmac_vif_ctx *vif)
+{
+       if (vif->if_type == NRF_WIFI_STA_TX_INJECTOR) {
+		return true;
+       }
+       return false;
+}
+#endif
+
 void *wifi_fmac_priv(struct nrf_wifi_fmac_priv *def)
 {
 	return &def->priv;

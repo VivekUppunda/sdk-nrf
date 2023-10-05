@@ -137,4 +137,5 @@ bool nrf_wifi_util_is_arr_zero(unsigned char *arr,
 void *wifi_fmac_priv(struct nrf_wifi_fmac_priv *def);
 void *wifi_dev_priv(struct nrf_wifi_fmac_dev_ctx *def);
 
+bool nrf_wifi_util_is_rawpktmode_enabled(struct nrf_wifi_fmac_vif_ctx *vif);
 #endif /* __FMAC_UTIL_H__ */
