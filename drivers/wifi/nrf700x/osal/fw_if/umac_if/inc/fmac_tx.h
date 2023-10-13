@@ -44,6 +44,12 @@ struct tx_pkt_info {
 	unsigned int peer_id;
 };
 
+struct tx_cmd_prep_raw_info {
+	struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx;
+	struct nrf_wifi_cmd_raw_tx *raw_config;
+	unsigned char num_tx_pkts;
+};
+
 struct tx_cmd_prep_info {
 	struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx;
 	struct nrf_wifi_tx_buff *config;
@@ -55,6 +61,9 @@ void tx_deinit(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 
 enum nrf_wifi_status nrf_wifi_fmac_tx_done_event_process(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 							 struct nrf_wifi_tx_buff_done *config);
+
+enum nrf_wifi_status nrf_wifi_fmac_rawtx_done_event_process(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+							    struct nrf_wifi_event_raw_tx_done *config);
 
 unsigned int tx_desc_get(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 			 int queue);

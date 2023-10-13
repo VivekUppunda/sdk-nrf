@@ -34,6 +34,7 @@ nrf_wifi_fmac_if_carr_state_event_proc(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ct
 	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 	def_priv = wifi_fmac_priv(fmac_dev_ctx->fpriv);
 
+	nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv, "%s\n", __func__);
 	if (!fmac_dev_ctx || !umac_head) {
 		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
 				      "%s: Invalid parameters\n",
@@ -240,6 +241,10 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 					      umac_hdr->cmd_evnt);
 		break;
 	case NRF_WIFI_UMAC_EVENT_IFFLAGS_STATUS:
+			nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+					      "%s: NRF_WIFI_UMAC_EVENT_IFFLAGS_STATUS %d\n",
+					      __func__,
+					      umac_hdr->cmd_evnt);
 		evnt_vif_state = (struct nrf_wifi_umac_event_vif_state *)event_data;
 
 		if (evnt_vif_state->status < 0)
@@ -275,6 +280,10 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 					      umac_hdr->cmd_evnt);
 		break;
 	case NRF_WIFI_UMAC_EVENT_AUTHENTICATE:
+			nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+					      "%s: NRF_UMAC_EVENT_AUTHENTICATE %d\n",
+					      __func__,
+					      umac_hdr->cmd_evnt);
 		if (callbk_fns->auth_resp_callbk_fn)
 			callbk_fns->auth_resp_callbk_fn(vif_ctx->os_vif_ctx,
 							event_data,
@@ -297,6 +306,10 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 					      umac_hdr->cmd_evnt);
 		break;
 	case NRF_WIFI_UMAC_EVENT_DEAUTHENTICATE:
+			nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+					      "%s: event is deauthenticate %d\n",
+					      __func__,
+					      umac_hdr->cmd_evnt);
 		if (callbk_fns->deauth_callbk_fn)
 			callbk_fns->deauth_callbk_fn(vif_ctx->os_vif_ctx,
 						     event_data,
@@ -397,6 +410,10 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 		break;
 	case NRF_WIFI_UMAC_EVENT_UNPROT_DEAUTHENTICATE:
 	case NRF_WIFI_UMAC_EVENT_UNPROT_DISASSOCIATE:
+			nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+					      "%s: event is disassociate or deauthenticate %d\n",
+					      __func__,
+					      umac_hdr->cmd_evnt);
 		if (callbk_fns->unprot_mlme_mgmt_rx_callbk_fn)
 			callbk_fns->unprot_mlme_mgmt_rx_callbk_fn(vif_ctx->os_vif_ctx,
 								  event_data,
@@ -408,6 +425,10 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 					      umac_hdr->cmd_evnt);
 		break;
 	case NRF_WIFI_UMAC_EVENT_SET_INTERFACE:
+			nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+					      "%s: NRF_WIFI_UMAC_EVENT_SET_INTERFACE %d\n",
+					      __func__,
+					      umac_hdr->cmd_evnt);
 		if (callbk_fns->set_if_callbk_fn)
 			callbk_fns->set_if_callbk_fn(vif_ctx->os_vif_ctx,
 						     event_data,
@@ -455,6 +476,12 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 	case NRF_WIFI_UMAC_EVENT_BEACON_HINT:
 	case NRF_WIFI_UMAC_EVENT_CONNECT:
 	case NRF_WIFI_UMAC_EVENT_DISCONNECT:
+		if (umac_hdr->cmd_evnt == NRF_WIFI_UMAC_EVENT_DISCONNECT) {
+			nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+					      "%s: disconnect event from UMAC\n",
+					      __func__,
+					      umac_hdr->cmd_evnt);
+		}
 		/* Nothing to be done */
 		break;
 	case NRF_WIFI_UMAC_EVENT_GET_REG:
@@ -482,6 +509,10 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 #ifdef CONFIG_NRF700X_STA_MODE
 	case NRF_WIFI_UMAC_EVENT_NEW_STATION:
 	case NRF_WIFI_UMAC_EVENT_DEL_STATION:
+			nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+					      "%s: umac_hdr->cmd_event %d\n",
+					      __func__,
+					      umac_hdr->cmd_evnt);
 		umac_event_connect(fmac_dev_ctx,
 				   event_data);
 		break;
@@ -636,6 +667,9 @@ nrf_wifi_fmac_data_event_process(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 		nrf_wifi_osal_tasklet_schedule(fmac_dev_ctx->fpriv->opriv,
 				def_dev_ctx->tx_done_tasklet);
 #else
+	nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+			      "%s: TX Buff done event coming in\n",
+			      __func__);
 		status = nrf_wifi_fmac_tx_done_event_process(fmac_dev_ctx,
 								umac_head);
 #endif /* CONFIG_NRF700X_TX_DONE_WQ_ENABLED */
@@ -855,16 +889,20 @@ static enum nrf_wifi_status umac_process_sys_events(struct nrf_wifi_fmac_dev_ctx
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 	unsigned char *sys_head = NULL;
+	struct nrf_wifi_fmac_dev_ctx_def *def_dev_ctx;
 #ifdef CONFIG_NRF700X_RADIO_TEST
-	struct nrf_wifi_fmac_dev_ctx_rt *def_dev_ctx;
+	struct nrf_wifi_fmac_dev_ctx_rt *def_dev_ctx_rt;
 	struct nrf_wifi_umac_event_err_status *umac_status;
-
-	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 #endif /* CONFIG_NRF700X_RADIO_TEST */
 
 	if (!fmac_dev_ctx || !rpu_msg) {
 		return status;
 	}
+
+#ifdef CONFIG_NRF700X_RADIO_TEST
+	def_dev_ctx_rt = wifi_dev_priv(fmac_dev_ctx);
+#endif	
+	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 
 	sys_head = (unsigned char *)rpu_msg->msg;
 
@@ -888,11 +926,76 @@ static enum nrf_wifi_status umac_process_sys_events(struct nrf_wifi_fmac_dev_ctx
 		break;
 	case NRF_WIFI_EVENT_RADIOCMD_STATUS:
 		umac_status = ((struct nrf_wifi_umac_event_err_status *)sys_head);
-		def_dev_ctx->radio_cmd_status = umac_status->status;
-		def_dev_ctx->radio_cmd_done = true;
+		def_dev_ctx_rt->radio_cmd_status = umac_status->status;
+		def_dev_ctx_rt->radio_cmd_done = true;
 		status = NRF_WIFI_STATUS_SUCCESS;
 		break;
 #endif /* CONFIG_NRF700X_RADIO_TEST */
+#ifdef CONFIG_NRF700X_RAWDATA_TX		
+	case NRF_WIFI_EVENT_RAW_TX_DONE:
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: NRF_WIFI_EVENT_RAW_TX_DONE is received\n",
+				      __func__);
+		status = nrf_wifi_fmac_rawtx_done_event_process(fmac_dev_ctx,
+				(struct nrf_wifi_event_raw_tx_done *)sys_head);
+		break;
+	case NRF_WIFI_EVENT_MODE_SET_DONE:
+		struct nrf_wifi_event_raw_config_mode *mode_event;
+		mode_event = (struct nrf_wifi_event_raw_config_mode *)sys_head;
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: mode_event->if_index %d mode_event->status = %d mode_event->mode = %d\n",
+				      __func__, mode_event->if_index, mode_event->status, mode_event->op_mode);
+		if (!mode_event->status) {
+			def_dev_ctx->vif_ctx[mode_event->if_index]->mode = 
+							mode_event->op_mode;
+			/* If the mode is only TX-Injector mode -  then allocate
+			 * a specific peer transmit queue 
+			 * Need to have a re-look (should we assign for sta+tx_injector too 
+			 **/
+			if (mode_event->op_mode == (NRF_WIFI_TX_INJECTION_MODE | 
+						    NRF_WIFI_STA_MODE)) {
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: setting transmit queues for Mode setting\n",
+				      __func__);
+				def_dev_ctx->tx_config.peers[MAX_PEERS].peer_id = MAX_PEERS;
+				def_dev_ctx->tx_config.peers[MAX_PEERS].if_idx = mode_event->if_index;
+				def_dev_ctx->vif_ctx[mode_event->if_index]->if_type = NRF_WIFI_STA_TX_INJECTOR;
+			} else if (mode_event->op_mode == NRF_WIFI_STA_MODE) {
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: disabling max peer transmit queues for Mode setting\n",
+				      __func__);
+				def_dev_ctx->vif_ctx[mode_event->if_index]->if_type = NRF_WIFI_IFTYPE_STATION;
+				def_dev_ctx->tx_config.peers[MAX_PEERS].peer_id = -1; 
+			}
+			status = NRF_WIFI_STATUS_SUCCESS;
+		}
+		break;
+	case NRF_WIFI_EVENT_CHANNEL_SET_DONE:
+		struct nrf_wifi_event_set_channel *channel_event;
+		channel_event = (struct nrf_wifi_event_set_channel *)sys_head;
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: channel_event->if_index %d channel_event->status = %d channel_event->chan_num = %d\n",
+				      __func__, channel_event->if_index, channel_event->status, channel_event->chan_num);
+		if (!channel_event->status) {
+			def_dev_ctx->vif_ctx[channel_event->if_index]->channel = 
+						channel_event->chan_num;
+		}
+		status = NRF_WIFI_STATUS_SUCCESS;
+		break;
+	case NRF_WIFI_EVENT_FILTER_SET_DONE:
+		struct nrf_wifi_event_raw_config_filter *filter_event;
+		filter_event = (struct nrf_wifi_event_raw_config_filter *)sys_head;
+		
+		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+				      "%s: filter_event->if_index %d filter_event->status = %d filter_event->filter = %d\n",
+				      __func__, filter_event->if_index, filter_event->status, filter_event->filter);
+		if (!filter_event->status) {
+			def_dev_ctx->vif_ctx[filter_event->if_index]->packet_filter =
+						filter_event->filter;
+		}
+		status = NRF_WIFI_STATUS_SUCCESS;
+		break;
+#endif		
 	default:
 		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
 				      "%s: Unknown event recd: %d\n",

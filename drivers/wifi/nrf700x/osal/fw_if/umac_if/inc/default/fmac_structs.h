@@ -326,6 +326,25 @@ struct tx_config {
 #endif /* CONFIG_NRF700X_STA_MODE */
 
 /**
+ * @brief Structure to hold raw tx packet information.
+ *
+ */
+struct raw_tx_data {
+	/** magic number **/
+	unsigned int magic_num;
+        /** Data rate of the packet */
+        unsigned char data_rate;
+        /** Packet length */
+        unsigned short packet_length;
+        /** Mode describing if packet is VHT, HT, HE or Legacy */
+        unsigned char tx_mode;
+        /** Wi-Fi access category mapping for packet */
+        unsigned char queue;
+        /** Flag indicating raw packet transmission */
+        unsigned char raw_tx_flag;
+};
+
+/**
  * @brief Structure to hold context information for the UMAC IF layer.
  *
  * This structure maintains the context information necessary for the
@@ -391,6 +410,9 @@ struct nrf_wifi_fmac_dev_ctx_def {
 	void *tx_done_tasklet;
 #endif /* CONFIG_NRF700X_TX_DONE_WQ_ENABLED */
 #endif /* CONFIG_NRF700X_STA_MODE */
+#ifdef CONFIG_NRF700X_RAWDATA_TX	
+	struct raw_tx_data raw_tx_config;
+#endif	
 };
 
 /**
@@ -414,6 +436,12 @@ struct nrf_wifi_fmac_vif_ctx {
 	int if_type;
 	/** BSSID of the AP to which this VIF is connected (applicable only in STA mode). */
 	unsigned char bssid[NRF_WIFI_ETH_ADDR_LEN];
+	/** packet filter setting for the VIF */
+	unsigned char packet_filter;
+	/** mode setting for the current VIF */
+	unsigned char mode;
+	/** channel setting for the current VIF */
+	unsigned char channel;	
 };
 
 /**

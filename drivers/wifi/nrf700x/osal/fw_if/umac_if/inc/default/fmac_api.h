@@ -986,6 +986,32 @@ enum nrf_wifi_status nrf_wifi_fmac_set_listen_interval(void *fmac_dev_ctx,
 enum nrf_wifi_status nrf_wifi_fmac_set_ps_wakeup_mode(void *fmac_dev_ctx,
 							unsigned char if_idx,
 							bool ps_wakeup_mode);
+
+/**
+ * @brief Transmit a raw unaltered frame to the RPU.
+ * @param fmac_dev_ctx Pointer to the UMAC IF context for a RPU WLAN device.
+ * @param if_idx Index of the interface on which the frame is to be
+ *               transmitted.
+ * @param netbuf Pointer to the OS specific network buffer.
+ *
+ * This function takes care of transmitting a frame to the RPU firmware.
+ * It does the following:
+ *
+ *     - Queues the frames to a transmit queue.
+ *     - Based on token availability, sends one or more frames to the RPU using
+ *       the command for transmission.
+ *     - The firmware sends an event once the command has
+ *       been processed to indicate whether the frame(s) have been
+ *       transmitted/aborted.
+ *     - The driver can cleanup the frame buffers after receiving this event.
+ *
+ *@retval      WIFI_NRF_STATUS_SUCCESS On success
+ *@retval      WIFI_NRF_STATUS_FAIL On failure to execute command
+ */
+enum nrf_wifi_status nrf_wifi_fmac_start_rawpkt_xmit(void *dev_ctx,
+                                                     unsigned char if_idx,
+                                                     void *net_packet);
+
 /**
  * @}
  */

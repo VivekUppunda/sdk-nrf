@@ -560,8 +560,7 @@ int z_wpa_supplicant_mode(const struct device *dev,
 		wpa_printf(MSG_ERROR, "Setting mode not supported");
 		return -ENOTSUP;
 	}
-
-	wpa_printf(MSG_ERROR, "wpa supplicant mode setting being invoked");
+	wpa_printf(MSG_ERROR, "supplicant mode invocation called\n");
 	return wifi_mgmt_api->mode(dev, mode);
 }
 
@@ -574,7 +573,6 @@ int z_wpa_supplicant_filter(const struct device *dev,
 		wpa_printf(MSG_ERROR, "Setting filter not supported");
 		return -ENOTSUP;
 	}
-
 	return wifi_mgmt_api->filter(dev, filter);
 }
 
@@ -587,6 +585,5 @@ int z_wpa_supplicant_channel(const struct device *dev,
 		wpa_printf(MSG_ERROR, "Setting channel not supported");
 		return -ENOTSUP;
 	}
-
 	return wifi_mgmt_api->channel(dev, channel);
 }

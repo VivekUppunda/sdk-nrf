@@ -2282,6 +2282,9 @@ enum nrf_wifi_status nrf_wifi_fmac_chg_vif_state(void *dev_ctx,
 			      chg_vif_state_cmd,
 			      sizeof(*chg_vif_state_cmd));
 
+	nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
+                                      "%d: umac_cmd_cfg returned status\n",status);
+
 	while (!vif_ctx->ifflags && (--count > 0))
 		nrf_wifi_osal_sleep_ms(fmac_dev_ctx->fpriv->opriv, 1);
 
@@ -2303,6 +2306,7 @@ enum nrf_wifi_status nrf_wifi_fmac_chg_vif_state(void *dev_ctx,
 		}
 	}
 #endif /* CONFIG_NRF700X_AP_MODE */
+
 out:
 	if (chg_vif_state_cmd) {
 		nrf_wifi_osal_mem_free(fmac_dev_ctx->fpriv->opriv,

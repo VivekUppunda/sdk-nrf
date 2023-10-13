@@ -99,6 +99,26 @@ struct nrf_wifi_fmac_reg_info {
 	bool force;
 };
 
+
+/**
+ * @brief Structure to hold raw packet information and data.
+ *
+ */
+struct nrf_wifi_fmac_rawpkt_info {
+	/** Magic number to distinguish packet is raw packet */
+	unsigned int magic_number;
+	/** Data rate of the packet */
+	unsigned char data_rate;
+	/** Packet length */
+	unsigned short packet_length;
+	/** Mode describing if packet is VHT, HT, HE or Legacy */
+	unsigned char tx_mode;
+	/** Wi-Fi access category mapping for packet */
+	unsigned char queue;
+	/** reserved parameter for driver */
+	unsigned char reserved;
+};
+
 /**
  * @brief Structure to hold common fmac priv parameter data.
  *
