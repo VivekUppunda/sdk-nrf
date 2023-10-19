@@ -771,10 +771,6 @@ enum nrf_wifi_status rawtx_cmd_prepare(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ct
 	config->raw_tx_info.rate = def_dev_ctx->raw_tx_config.data_rate;
 	config->raw_tx_info.rate_flags = def_dev_ctx->raw_tx_config.tx_mode;
  
-	nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
-			      "%s:len = %d, rate = %d, rate_flags = %d, if_index = %d\n",
-			      __func__, config->raw_tx_info.pkt_length, config->raw_tx_info.rate, config->raw_tx_info.rate_flags, config->if_index);
-
 	info.fmac_dev_ctx = fmac_dev_ctx;
 	info.raw_config = config;
 	info.num_tx_pkts = 0;
@@ -958,12 +954,6 @@ enum nrf_wifi_status rawtx_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 	status = nrf_wifi_hal_ctrl_cmd_send(fmac_dev_ctx->hal_dev_ctx,
 					    umac_cmd,
 					    (sizeof(*umac_cmd) + len));
-
-	if (status == NRF_WIFI_STATUS_SUCCESS) {
-		nrf_wifi_osal_log_err(fmac_dev_ctx->fpriv->opriv,
-				      "%s: nrf_wifi_hal_ctrl_cmd_send successful\n",
-				      __func__);
-	}
 
 	/* clear the raw tx config data */
 	nrf_wifi_osal_mem_set(fmac_dev_ctx->fpriv->opriv,

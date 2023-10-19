@@ -711,16 +711,11 @@ int nrf_wifi_mode(const struct device *dev,
 	fmac_dev_ctx = rpu_ctx_zep->rpu_ctx;
 	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 
-	LOG_ERR("driver: mode->mode = %x\n", mode->mode);
-	LOG_ERR("driver: mode->if_index = %d\n", mode->if_index);
-
 	if (!device_is_ready(dev)) {
 		LOG_ERR("%s: Device %s is not ready\n",
 			__func__, dev->name);
 		goto out;
 	}
-
-	LOG_ERR("%s: mode->oper = %d\n",__func__, mode->oper);
 
 	if (mode->oper == WIFI_MGMT_SET) {
 		status = check_mode_validity(mode);
@@ -735,7 +730,6 @@ int nrf_wifi_mode(const struct device *dev,
 		 * context maps the correct network interface index to current driver
 		 * interface index 
 		 */ 
-		LOG_ERR("%s: calling nrf_wifi_fmac_mode after change\n",__func__);
 		status = nrf_wifi_fmac_mode(rpu_ctx_zep->rpu_ctx, vif_ctx_zep->vif_idx, mode->mode);
 
 		if (status != NRF_WIFI_STATUS_SUCCESS) {
@@ -832,9 +826,6 @@ int nrf_wifi_channel(const struct device *dev,
 		LOG_ERR("%s: vif_ctx_zep is NULL\n", __func__);
 		goto out;
 	}
-
-	LOG_ERR("driver: channel->if_index = %d\n", channel->if_index);
-	LOG_ERR("driver: channel->channel = %d\n", channel->channel);
 
 	if (vif_ctx_zep->authorized) {
 		LOG_ERR("%s: Cannot change channel when in station connected mode\n", __func__);

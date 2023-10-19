@@ -55,7 +55,6 @@ static void nrf_wifi_net_iface_work_handler(struct k_work *work)
 		return;
 	}
 
-	LOG_ERR("%s: setting dormant on/off vif_ctx_zep->if_carr_state = %d\n", __func__, vif_ctx_zep->if_carr_state);
 	if (vif_ctx_zep->if_carr_state == NRF_WIFI_FMAC_IF_CARR_STATE_ON) {
 		net_if_dormant_off(vif_ctx_zep->zep_net_if_ctx);
 	} else if (vif_ctx_zep->if_carr_state == NRF_WIFI_FMAC_IF_CARR_STATE_OFF) {
@@ -108,7 +107,6 @@ enum nrf_wifi_status nrf_wifi_if_carr_state_chg(void *os_vif_ctx,
 
 	vif_ctx_zep = os_vif_ctx;
 
-	LOG_ERR("%s: Carrier state is set to: %d\n", __func__, carr_state);
 	vif_ctx_zep->if_carr_state = carr_state;
 
 	LOG_DBG("%s: Carrier state: %d\n", __func__, carr_state);

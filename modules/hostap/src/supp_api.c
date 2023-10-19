@@ -560,7 +560,6 @@ int z_wpa_supplicant_mode(const struct device *dev,
 		wpa_printf(MSG_ERROR, "Setting mode not supported");
 		return -ENOTSUP;
 	}
-	wpa_printf(MSG_ERROR, "supplicant mode invocation called\n");
 	return wifi_mgmt_api->mode(dev, mode);
 }
 
