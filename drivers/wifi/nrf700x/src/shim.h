@@ -57,5 +57,9 @@ struct zep_shim_llist {
 
 void *net_pkt_to_nbuf(struct net_pkt *pkt);
 void *net_pkt_from_nbuf(void *iface, void *frm);
-
+void *net_raw_pkt_from_nbuf(void *iface, 
+                            void *frm,
+                            unsigned short raw_hdr_len,
+                            void *raw_rx_hdr,
+			    bool promisc_mode);
 #endif /* __SHIM_H__ */
