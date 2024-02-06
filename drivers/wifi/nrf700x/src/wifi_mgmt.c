@@ -739,6 +739,12 @@ int nrf_wifi_mode(const struct device *dev,
 
 	} else {
 		mode->mode = def_dev_ctx->vif_ctx[vif_ctx_zep->vif_idx]->mode;
+
+#if defined(CONFIG_NRF700X_RAW_DATA_TX) || defined(CONFIG_NRF700X_RAW_DATA_RX)
+		if (def_dev_ctx->vif_ctx[vif_ctx_zep->vif_idx]->txinjection_mode == true) {
+			mode->mode ^= NRF_WIFI_TX_INJECTION_MODE;
+		}
+#endif
 	}
 	ret = 0;
 out:
@@ -746,7 +752,7 @@ out:
 }
 #endif
 
-#ifdef CONFIG_NRF700X_RAW_DATA_TX
+#if defined(CONFIG_NRF700X_RAW_DATA_TX) || defined(CONFIG_NRF700X_RAW_DATA_RX)
 int nrf_wifi_channel(const struct device *dev,
 		     struct wifi_channel_info *channel)
 {
@@ -798,4 +804,62 @@ int nrf_wifi_channel(const struct device *dev,
 out:
 	return ret;
 }
-#endif /* CONFIG_NRF700X_RAW_DATA_TX */
+#endif /* CONFIG_NRF700X_RAW_DATA_TX || CONFIG_NRF700X_RAW_DATA_RX */
+
+#ifdef CONFIG_NRF700X_RAW_DATA_RX
+int nrf_wifi_filter(const struct device *dev,
+		    struct wifi_filter_info *filter)
+{
+	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
+	struct nrf_wifi_ctx_zep *rpu_ctx_zep = NULL;
+	struct nrf_wifi_vif_ctx_zep *vif_ctx_zep = NULL;
+	struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx = NULL;
+	struct nrf_wifi_fmac_dev_ctx_def *def_dev_ctx = NULL;
+	int ret = -1;
+
+	if (!dev || !filter) {
+		LOG_ERR("%s: Illegal input parameters", __func__);
+		goto out;
+	}
+
+	vif_ctx_zep = dev->data;
+	if (!vif_ctx_zep) {
+		LOG_ERR("%s: vif_ctx_zep is NULL\n", __func__);
+		goto out;
+	}
+
+	rpu_ctx_zep = vif_ctx_zep->rpu_ctx_zep;
+	fmac_dev_ctx = rpu_ctx_zep->rpu_ctx;
+	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
+
+	if (filter->oper == WIFI_MGMT_SET) {
+		/**
+		 * In case a user sets data + management + ctrl bits
+		 * or all the filter bits. Map it to bit 0 set to
+		 * enable "all" packet filter bit setting
+		 */
+		if (filter->filter == WIFI_MGMT_DATA_CTRL_FILTER_SETTING
+		    || filter->filter == WIFI_ALL_FILTER_SETTING) {
+			filter->filter = 1;
+		}
+
+		/**
+		 * Send the driver vif_idx instead of upper layer sent if_index.
+		 * we map network if_index 1 to vif_idx of 0 and so on. The vif_ctx_zep
+		 * context maps the correct network interface index to current driver
+		 * interface index
+		 */
+		status = nrf_wifi_fmac_set_packet_filter(rpu_ctx_zep->rpu_ctx, filter->filter,
+							 vif_ctx_zep->vif_idx, filter->buffer_size);
+		if (status != NRF_WIFI_STATUS_SUCCESS) {
+			LOG_ERR("%s: Set filter operation failed\n", __func__);
+			goto out;
+		}
+	} else {
+		filter->filter = def_dev_ctx->vif_ctx[vif_ctx_zep->vif_idx]->packet_filter;
+	}
+	ret = 0;
+out:
+	return ret;
+}
+#endif /* CONFIG_NRF700X_RAW_DATA_RX */

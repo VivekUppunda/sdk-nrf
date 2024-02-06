@@ -18,6 +18,10 @@
 
 #include "osal_api.h"
 
+/** Filter setting defines for sniffer mode. */
+#define WIFI_MGMT_DATA_CTRL_FILTER_SETTING 0xE
+#define WIFI_ALL_FILTER_SETTING 0xF
+
 struct twt_interval_float {
 	unsigned short mantissa;
 	unsigned char exponent;
@@ -56,8 +60,14 @@ int nrf_wifi_mode(const struct device *dev,
 		  struct wifi_mode_info *mode);
 #endif
 
-#ifdef CONFIG_NRF700X_RAW_DATA_TX
+#if defined(CONFIG_NRF700X_RAW_DATA_TX) || defined(CONFIG_NRF700X_RAW_DATA_RX)
 int nrf_wifi_channel(const struct device *dev,
 		     struct wifi_channel_info *channel);
-#endif /* CONFIG_NRF700X_RAW_DATA_TX */
+#endif /* CONFIG_NRF700X_RAW_DATA_TX || CONFIG_NRF700X_RAW_DATA_RX */
+
+#ifdef CONFIG_NRF700X_RAW_DATA_RX
+int nrf_wifi_filter(const struct device *dev,
+		    struct wifi_filter_info *filter);
+#endif /* CONFIG_NRF700X_RAW_DATA_RX */
+
 #endif /*  __ZEPHYR_WIFI_MGMT_H__ */

@@ -657,6 +657,9 @@ static int nrf_wifi_drv_main_zep(const struct device *dev)
 	data_config.rate_protection_type = rate_protection_type;
 	callbk_fns.if_carr_state_chg_callbk_fn = nrf_wifi_if_carr_state_chg;
 	callbk_fns.rx_frm_callbk_fn = nrf_wifi_if_rx_frm;
+#ifdef CONFIG_NRF700X_RAW_DATA_RX
+	callbk_fns.rx_sniffer_frm_callbk_fn = nrf_wifi_if_sniffer_rx_frm;
+#endif
 #endif
 	rx_buf_pools[0].num_bufs = rx1_num_bufs;
 	rx_buf_pools[1].num_bufs = rx2_num_bufs;
@@ -765,9 +768,12 @@ static struct wifi_mgmt_ops nrf_wifi_mgmt_ops = {
 #ifdef CONFIG_NRF700X_SYSTEM_MODE
 	.mode = nrf_wifi_mode,
 #endif
-#ifdef CONFIG_NRF700X_RAW_DATA_TX
+#if defined(CONFIG_NRF700X_RAW_DATA_TX) || defined(CONFIG_NRF700X_RAW_DATA_RX)
 	.channel = nrf_wifi_channel,
-#endif /* CONFIG_NRF700X_RAW_DATA_TX */
+#endif /* CONFIG_NRF700X_RAW_DATA_TX || CONFIG_NRF700X_RAW_DATA_RX */
+#ifdef CONFIG_NRF700X_RAW_DATA_RX
+	.filter = nrf_wifi_filter,
+#endif /* CONFIG_NRF700X_RAW_DATA_RX */
 };
 #endif /* CONFIG_NET_L2_WIFI_MGMT */
 
@@ -778,6 +784,7 @@ static const struct net_wifi_mgmt_offload wifi_offload_ops = {
 	.wifi_iface.start = nrf_wifi_if_start_zep,
 	.wifi_iface.stop = nrf_wifi_if_stop_zep,
 	.wifi_iface.set_config = nrf_wifi_if_set_config_zep,
+	.wifi_iface.get_config = nrf_wifi_if_get_config_zep,
 	.wifi_iface.get_capabilities = nrf_wifi_if_caps_get,
 	.wifi_iface.send = nrf_wifi_if_send,
 #ifdef CONFIG_NET_STATISTICS_ETHERNET
