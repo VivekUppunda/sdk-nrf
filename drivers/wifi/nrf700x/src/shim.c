@@ -371,7 +371,10 @@ out:
 }
 
 #ifdef CONFIG_NRF700X_RAW_DATA_RX
-void *net_raw_pkt_from_nbuf(void *iface, void *frm, unsigned short raw_hdr_len, void *raw_rx_hdr)
+void *net_raw_pkt_from_nbuf(void *iface, void *frm,
+			    unsigned short raw_hdr_len,
+			    void *raw_rx_hdr,
+			    bool promisc_mode)
 {
 	struct net_pkt *pkt = NULL;
 	unsigned char *nwb_data;
@@ -414,7 +417,9 @@ out:
 	if (data != NULL) {
 		k_free(data);
 	}
-	zep_shim_nbuf_free(nwb);
+	if (!promisc_mode) {
+		zep_shim_nbuf_free(nwb);
+	}
 	return pkt;
 }
 #endif /* CONFIG_NRF700X_RAW_DATA_RX */

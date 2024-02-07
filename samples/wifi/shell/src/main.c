@@ -300,7 +300,7 @@ static void wifi_set_mode(void)
 	if (ret) {
 		LOG_ERR("Mode setting failed %d", ret);
 	}
-#if 1 
+#if 0 
 	printk("net eth txinjection mode being called");
         ret = net_eth_txinjection_mode(iface, true);
 

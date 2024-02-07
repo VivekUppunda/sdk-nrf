@@ -92,7 +92,9 @@ static void nrf_wifi_net_iface_work_handler(struct k_work *work)
 }
 
 #ifdef CONFIG_NRF700X_RAW_DATA_RX
-void nrf_wifi_if_sniffer_rx_frm(void *os_vif_ctx, void *frm, struct raw_rx_pkt_header *raw_rx_hdr)
+void nrf_wifi_if_sniffer_rx_frm(void *os_vif_ctx, void *frm,
+				struct raw_rx_pkt_header *raw_rx_hdr,
+				bool promisc_mode)
 {
 	struct nrf_wifi_vif_ctx_zep *vif_ctx_zep = os_vif_ctx;
 	struct net_if *iface = vif_ctx_zep->zep_net_if_ctx;
@@ -104,7 +106,10 @@ void nrf_wifi_if_sniffer_rx_frm(void *os_vif_ctx, void *frm, struct raw_rx_pkt_h
 
 	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 
-	pkt = net_raw_pkt_from_nbuf(iface, frm, sizeof(struct raw_rx_pkt_header), raw_rx_hdr);
+	pkt = net_raw_pkt_from_nbuf(iface, frm,
+				    sizeof(struct raw_rx_pkt_header),
+				    raw_rx_hdr,
+				    promisc_mode);
 	if (!pkt) {
 		LOG_DBG("Failed to allocate net_pkt");
 		return;
@@ -200,6 +205,9 @@ enum ethernet_hw_caps nrf_wifi_if_caps_get(const struct device *dev)
 
 #ifdef CONFIG_NRF700X_RAW_DATA_TX
 	caps |= ETHERNET_TXINJECTION_MODE;
+#endif
+#ifdef CONFIG_NRF700X_RAW_DATA_RX
+	caps |= ETHERNET_PROMISC_MODE;
 #endif
 	return caps;
 }
@@ -878,7 +886,43 @@ int nrf_wifi_if_set_config_zep(const struct device *dev,
 		}
 	}
 #endif
+#ifdef CONFIG_NRF700X_RAW_DATA_RX
+       else if (type == ETHERNET_CONFIG_TYPE_PROMISC_MODE) {
+               unsigned char mode;
 
+               if (def_dev_ctx->vif_ctx[vif_ctx_zep->vif_idx]->promisc_mode ==
+                   config->promisc_mode) {
+                       LOG_ERR("%s: Driver promisc mode setting is same as configured setting",
+                               __func__);
+                       goto out;
+               }
+               LOG_ERR("%s: primary mode setting is 0x%x",
+                       __func__, def_dev_ctx->vif_ctx[vif_ctx_zep->vif_idx]->mode);
+               /**
+                * Since UMAC wishes to use the same mode command as previously
+                * used for mode, `OR` the primary mode with TX-Injection mode and
+                * send it to the UMAC. That way UMAC can still maintain code
+                * as is
+                */
+               if (config->promisc_mode) {
+                       mode = (def_dev_ctx->vif_ctx[vif_ctx_zep->vif_idx]->mode) |
+                              (NRF_WIFI_PROMISCUOUS_MODE);
+               } else {
+                       mode = (def_dev_ctx->vif_ctx[vif_ctx_zep->vif_idx]->mode) ^
+                              (NRF_WIFI_PROMISCUOUS_MODE);
+               }
+
+               LOG_ERR("%s: Driver promisc mode setting is 0x%x",
+                       __func__, mode);
+               ret = nrf_wifi_fmac_set_mode(rpu_ctx_zep->rpu_ctx,
+                                            vif_ctx_zep->vif_idx, mode);
+
+               if (ret != NRF_WIFI_STATUS_SUCCESS) {
+                       LOG_ERR("%s: mode set operation failed", __func__);
+                       goto out;
+               }
+       }
+#endif
 	ret = 0;
 out:
 	return ret;

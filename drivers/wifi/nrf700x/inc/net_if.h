@@ -43,7 +43,8 @@ void nrf_wifi_if_rx_frm(void *os_vif_ctx,
 #ifdef CONFIG_NRF700X_RAW_DATA_RX
 void nrf_wifi_if_sniffer_rx_frm(void *os_vif_ctx,
 				void *frm,
-				struct raw_rx_pkt_header *raw_rx_hdr);
+				struct raw_rx_pkt_header *raw_rx_hdr,
+				bool promisc_mode);
 #endif /* CONFIG_NRF700X_RAW_DATA_RX */
 
 enum nrf_wifi_status nrf_wifi_if_carr_state_chg(void *os_vif_ctx,
